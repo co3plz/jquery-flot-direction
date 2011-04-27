@@ -4,17 +4,17 @@ The data points you give in your data series should be three dimentions, like:[x
 
 default options:
 direction: {
-        	show: true,
-        	lineWidth: 1,
-        	color: "rgb(100, 60, 60)",
-			fillColor: "rgb(100, 60, 60)",
-			arrawLength: 8,
-			angleType: "degree", //degree or radian
-			openAngle: 30,
-			zeroShow: false,
-			threshold: 0.000001,
-			angleStart: 0
-    	}
+            show: true,
+            lineWidth: 1,
+            color: "rgb(100, 60, 60)",
+            fillColor: "rgb(100, 60, 60)",
+            arrawLength: 8,
+            angleType: "degree", //degree or radian
+            openAngle: 30,
+            zeroShow: false,
+            threshold: 0.000001,
+            angleStart: 0
+        }
 
 =========
  options
@@ -36,6 +36,11 @@ direction: {
 =========
  changes
 =========
+version 1.4
+-------------
+fix bug that set options in separate serie does not work well
+fix bug that series ploted against the first axis only
+
 version 1.3
 -----------
 fix bug that options can't set in sigle series
@@ -55,127 +60,132 @@ fix bug that nonsense when change default options. {thanks Jernej Jerin}
  example
 =========
 $.plot(
-	"#place_holder",
-	[
-		{data: [1, 13, 50], [2, 20, 40], [3, 33, 50], [4, 13, 120], [5, 8, 270], [6, 26, 230]}
-	],
-	{
-	     series: {
-			 points: {
-			 	show: true,
-			 	radius: 3,
-			 	fill: false,
-			 	symbol: 'circle'
-			 },
-	         lines: {
-	         	show: true,
-	         	lineWidth: 2
-	         }
-	        direction: {
-	     		show: true,
-	     	}
+    "#place_holder",
+    [
+        {data: [1, 13, 50], [2, 20, 40], [3, 33, 50], [4, 13, 120], [5, 8, 270], [6, 26, 230]}
+    ],
+    {
+        series: {
+            points: {
+                show: true,
+                radius: 3,
+                fill: false,
+                symbol: 'circle'
+            },
+            lines: {
+                show: true,
+                lineWidth: 2
+            }
+           direction: {
+                show: true,
+            }
         }
-	 }
+    }
 );
+
+=============
+ acknowledge
+=============
+Jernej Jerin: Thank you for your testing any version of the plugin and reporting the bugs.
 */
 
 
 (function ($) {
     var options = {
-    	series: {
-        	direction: {
-        		show: true,
-    	    	lineWidth: 1,
-        		color: "rgb(100, 60, 60)",
-				fillColor: "rgb(100, 60, 60)",
-				arrawLength: 8,
-				angleType: "degree", //degree or radian
-				openAngle: 30,
-				zeroShow: false,
-				threshold: 0.000001,
-				angleStart: 0
-    		}
-    	}
+        series: {
+            direction: {
+                show: true,
+                lineWidth: 1,
+                color: "rgb(100, 60, 60)",
+                fillColor: "rgb(100, 60, 60)",
+                arrawLength: 8,
+                angleType: "degree", //degree or radian
+                openAngle: 30,
+                zeroShow: false,
+                threshold: 0.000001,
+                angleStart: 0
+            }
+        }
     };
     
     function init(plot) {
-    	function draw(plot, ctx) {
-    		$.each(plot.getData(), function(ii, series) {
-    			drawSeries(plot, ctx, series);
-    		});
-    	}
-    	
+        function draw(plot, ctx) {
+            $.each(plot.getData(), function(ii, series) {
+                drawSeries(plot, ctx, series);
+            });
+        }
+        
         function drawSeries(plot, ctx, series) {
-        	var direction = plot.getOptions().series.direction;
-            series = $.extend(true, {}, direction, series);
+            var direction = plot.getOptions().series.direction;
+            series = $.extend(true, {}, direction, series, series.direction);
             if (!series.show || series.data.length < 1 ||  series.data[0].length < 3) {
                 return;
             }
 
             var i, x, y;
-			var points = series.data;
+            var points = series.data;
 
-			var radius = series.arrawLength;
-			
-			for (i = 0; i < points.length; i++) {
-				if (points.length < 3 || points[i][1] === null) {
-					continue;
-				}
-				
-				x = points[i][0];
-				y = points[i][1];
-				
-				var offset = plot.pointOffset({ x: x, y: y});
-				x = offset.left;
-				y = offset.top;
-				
-				if (!series.zeroShow && (Math.abs(points[i][1]) < series.threshold)) {
-					ctx.beginPath();
-					ctx.strokeStyle = series.color;
-					ctx.lineWidth = series.lineWidth || 1;
-					ctx.arc(x, y, radius, 0, series.shadow ? Math.PI : Math.PI * 2, false);
-					ctx.closePath();
-					continue;
-				}
-				
-				if (series.angleType == "degree") {
-					direct = ((90 - points[i][2]) + series.angleStart) * Math.PI / 180;
-				}
-				else {
-					direct = Math.PI/2 - points[i][2] + series.angleStart;
-				}				
-				
-				var tail_percent = 0.5;
-				var t_x = x + radius * Math.cos(direct);
-				var t_y = y - radius * Math.sin(direct);
-				var f_x = x - radius * Math.cos(direct) * tail_percent;
-				var f_y = y + radius * Math.sin(direct) * tail_percent;
-								
-				var sharp_angle = (series.openAngle * Math.PI / 180) % 90; //arraw open angle
-				
-				var r_x = f_x - radius / Math.cos(sharp_angle) * Math.cos(direct + sharp_angle);
-				var r_y = f_y + radius / Math.cos(sharp_angle) * Math.sin(direct + sharp_angle);
-				
-				var l_x = f_x - radius / Math.cos(sharp_angle) * Math.cos(direct - sharp_angle);
-				var l_y = f_y + radius / Math.cos(sharp_angle) * Math.sin(direct - sharp_angle);
-				
-				ctx.beginPath();
+            var radius = series.arrawLength;
+            
+            for (i = 0; i < points.length; i++) {
+                if (points.length < 3 || points[i][1] === null) {
+                    continue;
+                }
+                
+                x = points[i][0];
+                y = points[i][1];
+                
+                var offset = plot.pointOffset({ x: x, y: y, xaxis: series.xaxis, yaxis: series.yaxis});
+                x = offset.left;
+                y = offset.top;
+                
+                if (!series.zeroShow && (Math.abs(points[i][1]) < series.threshold)) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = series.color;
+                    ctx.lineWidth = series.lineWidth || 1;
+                    ctx.arc(x, y, radius, 0, series.shadow ? Math.PI : Math.PI * 2, false);
+                    ctx.closePath();
+                    continue;
+                }
+                
+                if (series.angleType == "degree") {
+                    direct = ((90 - points[i][2]) + series.angleStart) * Math.PI / 180;
+                }
+                else {
+                    direct = Math.PI/2 - points[i][2] + series.angleStart;
+                }                
+                
+                var tail_percent = 0.5;
+                var t_x = x + radius * Math.cos(direct);
+                var t_y = y - radius * Math.sin(direct);
+                var f_x = x - radius * Math.cos(direct) * tail_percent;
+                var f_y = y + radius * Math.sin(direct) * tail_percent;
+                                
+                var sharp_angle = (series.openAngle * Math.PI / 180) % 90; //arraw open angle
+                
+                var r_x = f_x - radius / Math.cos(sharp_angle) * Math.cos(direct + sharp_angle);
+                var r_y = f_y + radius / Math.cos(sharp_angle) * Math.sin(direct + sharp_angle);
+                
+                var l_x = f_x - radius / Math.cos(sharp_angle) * Math.cos(direct - sharp_angle);
+                var l_y = f_y + radius / Math.cos(sharp_angle) * Math.sin(direct - sharp_angle);
+                
+                ctx.beginPath();
 
-				ctx.strokeStyle = series.color;
-				ctx.lineWidth = 1;
-				
-				ctx.moveTo(f_x, f_y);
-				ctx.lineTo(r_x, r_y);
-				ctx.lineTo(t_x, t_y);
-				ctx.lineTo(l_x, l_y);
-				ctx.lineTo(f_x, f_y);
-				ctx.closePath();
-				
-				ctx.fillStyle = series.fillColor;
-				ctx.fill();
-				
-				ctx.stroke();
-			}
+                ctx.strokeStyle = series.color;
+                ctx.lineWidth = 1;
+                
+                ctx.moveTo(f_x, f_y);
+                ctx.lineTo(r_x, r_y);
+                ctx.lineTo(t_x, t_y);
+                ctx.lineTo(l_x, l_y);
+                ctx.lineTo(f_x, f_y);
+                ctx.closePath();
+                
+                ctx.fillStyle = series.fillColor;
+                ctx.fill();
+                
+                ctx.stroke();
+            }
             
         }
         
@@ -186,6 +196,7 @@ $.plot(
         init: init,
         options: options,
         name: 'direction',
-        version: '1.3'
+        version: '1.4'
     });
 })(jQuery);
+
