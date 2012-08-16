@@ -36,6 +36,10 @@ direction: {
 =========
  changes
 =========
+version 1.4.1
+-------------
+change the example section, now it works.
+
 version 1.4
 -------------
 fix bug that set options in separate serie does not work well
@@ -60,33 +64,41 @@ fix bug that nonsense when change default options. {thanks Jernej Jerin}
  example
 =========
 $.plot(
-    "#place_holder",
-    [
-        {data: [1, 13, 50], [2, 20, 40], [3, 33, 50], [4, 13, 120], [5, 8, 270], [6, 26, 230]}
-    ],
-    {
-        series: {
-            points: {
-                show: true,
-                radius: 3,
-                fill: false,
-                symbol: 'circle'
-            },
-            lines: {
-                show: true,
-                lineWidth: 2
-            }
-           direction: {
-                show: true,
-            }
-        }
-    }
+	"#place_holder",
+	[
+		[[1, 13, 50], [2, 20, 40], [3, 33, 50], [4, 13, 120], [5, 8, 270], [6, 26, 230]]
+	],
+	{
+		series: {
+			 points: {
+				show: true,
+				radius: 3,
+				fill: false,
+				symbol: 'circle'
+			},
+			 lines: {
+				show: true,
+				lineWidth: 2
+			},
+			 direction: {
+				show: true
+			}
+		}
+	}
 );
 
 =============
  acknowledge
 =============
 Jernej Jerin: Thank you for your testing any version of the plugin and reporting the bugs.
+Xue Wei: the example section now works with flot v0.7 after version 1.4.1.
+
+=========
+ more :)
+=========
+Author: xb liu
+Site: http://code.google.com/p/jquery-flot-direction/
+License: GPL(any version) or Perl Artistic License
 */
 
 
@@ -196,7 +208,7 @@ Jernej Jerin: Thank you for your testing any version of the plugin and reporting
         init: init,
         options: options,
         name: 'direction',
-        version: '1.4'
+        version: '1.4.1'
     });
 })(jQuery);
 
