@@ -36,6 +36,10 @@ direction: {
 =========
  changes
 =========
+version 1.4.2
+-------------
+fix bug that not draw the direction when the serial data is less than 3.
+
 version 1.4.1
 -------------
 change the example section, now it works.
