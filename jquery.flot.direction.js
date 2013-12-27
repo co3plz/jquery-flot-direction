@@ -212,7 +212,7 @@ License: GPL(any version) or Perl Artistic License
         init: init,
         options: options,
         name: 'direction',
-        version: '1.4.1'
+        version: '1.4.2'
     });
 })(jQuery);
 
